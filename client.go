@@ -5,8 +5,9 @@ import (
 	"runtime"
 	"sync/atomic"
 
-	opentracing "github.com/opentracing/opentracing-go"
 	"context"
+
+	opentracing "github.com/opentracing/opentracing-go"
 	"github.com/opentracing/opentracing-go/ext"
 	"github.com/opentracing/opentracing-go/log"
 	"google.golang.org/grpc"
@@ -40,7 +41,7 @@ func OpenTracingClientInterceptor(tracer opentracing.Tracer, optFuncs ...Option)
 	) error {
 		var err error
 		var parentCtx opentracing.SpanContext
-		if parent := opentracing.SpanFromContext(ctx); parent != nil {
+		if parent, ok := ctx.Value(tracerContextSpanKey).(opentracing.Span); ok {
 			parentCtx = parent.Context()
 		}
 		if otgrpcOpts.inclusionFunc != nil &&
@@ -102,7 +103,7 @@ func OpenTracingStreamClientInterceptor(tracer opentracing.Tracer, optFuncs ...O
 	) (grpc.ClientStream, error) {
 		var err error
 		var parentCtx opentracing.SpanContext
-		if parent := opentracing.SpanFromContext(ctx); parent != nil {
+		if parent, ok := ctx.Value(tracerContextSpanKey).(opentracing.Span); ok {
 			parentCtx = parent.Context()
 		}
 		if otgrpcOpts.inclusionFunc != nil &&
